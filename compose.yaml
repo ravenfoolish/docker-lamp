@@ -1,0 +1,52 @@
+version: '3'
+
+services:
+  app:
+    ports:
+      - "8000:80"
+    build:
+      context: .
+      dockerfile: ./infra/docker/php-apache/Dockerfile
+      target: ${APP_BUILD_TARGET:-development}
+    volumes:
+      - ./src:/var/www/html
+    env_file:
+      - ./src/.env
+    environment:
+      - UID=${LOCAL_UID:-1000}
+      - GID=${LOCAL_GID:-1000}
+      - USERNAME=${WHOAMI:-myuser}
+      - LOG_CHANNEL=${LOG_CHANNEL:-daily}
+      - LOG_STDERR_FORMATTER=${LOG_STDERR_FORMATTER:-Monolog\Formatter\JsonFormatter}
+      - DB_CONNECTION=${DB_CONNECTION:-mysql}
+      - DB_HOST=${DB_HOST:-db}
+      - DB_PORT=${DB_PORT:-3306}
+      - DB_DATABASE=${DB_DATABASE:-laravel}
+      - DB_USERNAME=${DB_USERNAME:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-password}
+    entrypoint: /usr/local/bin/entrypoint.sh
+    command: apache2-foreground
+
+  db:
+    build:
+      context: .
+      dockerfile: ./infra/docker/mysql/Dockerfile
+    ports:
+      - target: 3306
+        published: ${DB_PUBLISHED_PORT:-3306}
+        protocol: tcp
+        mode: host
+    volumes:
+      - ./infra/docker/mysql/data:/var/lib/mysql
+      - ./infra/docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+    environment:
+      - MYSQL_DATABASE=${DB_DATABASE:-laravel}
+      - MYSQL_USER=${DB_USERNAME:-root}
+      - MYSQL_PASSWORD=${DB_PASSWORD:-password}
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-rootpassword}
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8888:8080
