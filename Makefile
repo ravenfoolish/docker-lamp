@@ -1,3 +1,15 @@
+## args
+UID = $(shell id -u ${USER})
+GID = $(shell id -g ${USER})
+WHOAMI = $(shell whoami)
+
+ifeq ($(shell uname), Darwin)
+	# Default group id is '20' on macOS. This group id is already exsit on Linux Container. So set a same value as uid.
+	GID = $(UID)
+endif
+
+export UID GID WHOAMI HOSTNAME
+
 install:
 	@make build
 	@make up
@@ -39,7 +51,7 @@ ps:
 web:
 	docker compose exec web bash
 app:
-	docker compose exec app bash
+	docker compose exec app gosu $(WHOAMI) bash
 tinker:
 	docker compose exec app php artisan tinker
 dump:

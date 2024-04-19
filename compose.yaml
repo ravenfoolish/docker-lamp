@@ -1,21 +1,29 @@
 version: '3'
 
+volumes:
+  db-store:
+
+configs:
+  db-config:
+    file: ./infra/docker/mysql/my.cnf
+
 services:
   app:
     ports:
-      - "8000:80"
+      - "80:80"
     build:
       context: .
       dockerfile: ./infra/docker/php-apache/Dockerfile
       target: ${APP_BUILD_TARGET:-development}
     volumes:
-      - ./src:/var/www/html
-    env_file:
-      - ./src/.env
+      - type: bind
+        source: ./src
+        target: /workspace
     environment:
       - UID=${LOCAL_UID:-1000}
       - GID=${LOCAL_GID:-1000}
       - USERNAME=${WHOAMI:-myuser}
+      # Please remove this environment variable, after created the Laravel project. Please write in .env
       - LOG_CHANNEL=${LOG_CHANNEL:-daily}
       - LOG_STDERR_FORMATTER=${LOG_STDERR_FORMATTER:-Monolog\Formatter\JsonFormatter}
       - DB_CONNECTION=${DB_CONNECTION:-mysql}
@@ -36,9 +44,15 @@ services:
         published: ${DB_PUBLISHED_PORT:-3306}
         protocol: tcp
         mode: host
+    configs:
+      - source: db-config
+        target: /etc/my.cnf
     volumes:
-      - ./infra/docker/mysql/data:/var/lib/mysql
-      - ./infra/docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+      - type: volume
+        source: db-store
+        target: /var/lib/mysql
+        volume:
+          nocopy: true
     environment:
       - MYSQL_DATABASE=${DB_DATABASE:-laravel}
       - MYSQL_USER=${DB_USERNAME:-root}
