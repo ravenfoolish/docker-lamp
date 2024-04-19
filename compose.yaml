@@ -20,8 +20,8 @@ services:
         source: ./src
         target: /var/www/html
     environment:
-      - UID=${LOCAL_UID:-1000}
-      - GID=${LOCAL_GID:-1000}
+      - UID=${UID:-1000}
+      - GID=${GID:-1000}
       - USERNAME=${WHOAMI:-myuser}
       # Please remove this environment variable, after created the Laravel project. Please write in .env
       - LOG_CHANNEL=${LOG_CHANNEL:-daily}
