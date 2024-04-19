@@ -10,6 +10,10 @@ Build a simple LAMP (Laravel, Apache, MySQL, PHP) development environment with d
 2. Git clone & change directory
 3. Execute the following command
 
+#### tips
+
+When you use `make` command, the host user's UID, GID, and USERNAME can be the same as the container execution user.
+
 ```bash
 $ make create-project
 
@@ -18,11 +22,10 @@ $ make create-project
 $ mkdir -p src
 $ docker compose build
 $ docker compose up -d
-$ docker compose exec app gosu $(WHOAMI) bash -c "\
-    composer create-project --prefer-dist laravel/laravel . && \
-    php artisan key:generate && \
-    php artisan storage:link && \
-    chmod -R 777 storage bootstrap/cache"
+$ docker compose exec app composer create-project --prefer-dist laravel/laravel .
+$ docker compose exec app php artisan key:generate
+$ docker compose exec app php artisan storage:link
+$ docker compose exec app chmod -R 777 storage bootstrap/cache
 $ docker compose exec app php artisan migrate
 ```
 
@@ -40,16 +43,29 @@ $ make install
 
 $ docker compose build
 $ docker compose up -d
-$ docker compose exec app gosu $(WHOAMI) bash -c "\
-    composer install && \
-    cp .env.example .env && \
-    php artisan key:generate && \
-    php artisan storage:link && \
-    chmod -R 777 storage bootstrap/cache"
-$ docker compose exec app php artisan migrate:fresh
+$ docker compose exec app composer install
+$ docker compose exec app cp .env.example .env
+$ docker compose exec app php artisan key:generate
+$ docker compose exec app php artisan storage:link
+$ docker compose exec app chmod -R 777 storage bootstrap/cache
 ```
 
 http://localhost
+
+### Login to the app container as a non-root user
+
+```bash
+$ make app
+docker compose exec app gosu username bash
+username@a5a88db461e9:/var/www/html$
+```
+
+### Login to the app container as a root user
+
+```bash
+$ docker compose exec app bash
+root@a5a88db461e9:/var/www/html#
+```
 
 ## Container structures
 
