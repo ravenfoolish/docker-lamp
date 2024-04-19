@@ -1,7 +1,5 @@
 FROM php:8.2-apache AS base
 
-WORKDIR /workspace
-
 # timezone environment
 ENV TZ=UTC \
     # locale

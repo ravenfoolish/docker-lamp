@@ -18,7 +18,7 @@ services:
     volumes:
       - type: bind
         source: ./src
-        target: /workspace
+        target: /var/www/html
     environment:
       - UID=${LOCAL_UID:-1000}
       - GID=${LOCAL_GID:-1000}
