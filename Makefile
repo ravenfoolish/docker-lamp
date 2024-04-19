@@ -8,25 +8,27 @@ ifeq ($(shell uname), Darwin)
 	GID = $(UID)
 endif
 
-export UID GID WHOAMI HOSTNAME
+export UID GID WHOAMI
 
 install:
 	@make build
 	@make up
-	docker compose exec app composer install
-	docker compose exec app cp .env.example .env
-	docker compose exec app php artisan key:generate
-	docker compose exec app php artisan storage:link
-	docker compose exec app chmod -R 777 storage bootstrap/cache
+	docker compose exec app gosu $(WHOAMI) bash -c "\
+		composer install && \
+		cp .env.example .env && \
+		php artisan key:generate && \
+		php artisan storage:link && \
+		chmod -R 777 storage bootstrap/cache"
 	@make fresh
 create-project:
 	mkdir -p src
-	docker compose build
-	docker compose up -d
-	docker compose exec app composer create-project --prefer-dist laravel/laravel .
-	docker compose exec app php artisan key:generate
-	docker compose exec app php artisan storage:link
-	docker compose exec app chmod -R 777 storage bootstrap/cache
+	@make build
+	@make up
+	docker compose exec app gosu $(WHOAMI) bash -c "\
+		composer create-project --prefer-dist laravel/laravel . && \
+		php artisan key:generate && \
+		php artisan storage:link && \
+		chmod -R 777 storage bootstrap/cache"
 	@make fresh
 build:
 	docker compose build
