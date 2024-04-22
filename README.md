@@ -6,7 +6,7 @@ Build a simple LAMP (Laravel, Apache, MySQL, PHP) development environment with d
 
 ### Create an initial Laravel project
 
-1. Click [Use this template](https://github.com/ucan-lab/docker-laravel/generate)
+1. Click [Use this template](https://github.com/new?template_name=docker-lamp&template_owner=june1983)
 2. Git clone & change directory
 3. Execute the following command
 
