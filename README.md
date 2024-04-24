@@ -198,6 +198,18 @@ $ docker compose exec app bash
 root@a5a88db461e9:/var/www/html#
 ```
 
+### npm install / npm run dev
+
+`make app` で app コンテナにログインした後、以下のコマンドを実行する。
+
+```bash
+username@a5a88db461e9:/var/www/html$ npm install
+
+# or...
+
+username@a5a88db461e9:/var/www/html$ npm run dev
+```
+
 ### dbコンテナのMySQLに接続する
 
 ```bash
