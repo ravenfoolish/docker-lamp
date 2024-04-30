@@ -1,3 +1,4 @@
+SHELL=/bin/bash
 ## args
 UID = $(shell id -u ${USER})
 GID = $(shell id -g ${USER})
@@ -11,24 +12,38 @@ endif
 export UID GID WHOAMI
 
 install:
+	@echo "Building the Docker images..."
 	@make build
+	@echo "Starting up the Docker containers..."
 	@make up
+	@echo "Waiting for Docker services to start..."
+	sleep 10  # Adjust the sleep time based on your system's performance
+	@echo "Executing installation commands inside the 'app' container..."
 	docker compose exec app gosu $(WHOAMI) bash -c "\
+		set -xe; \
 		composer install && \
 		cp .env.example .env && \
 		php artisan key:generate && \
 		php artisan storage:link && \
 		chmod -R 777 storage bootstrap/cache"
+	@echo "Refreshing the database..."
 	@make fresh
 create-project:
+	@echo "Creating directories..."
 	mkdir -p src
+	@echo "Building the Docker images..."
 	@make build
+	@echo "Starting up the Docker containers..."
 	@make up
+	@echo "Waiting for Docker services to start..."
+	sleep 10  # Adjust the sleep time based on your system's performance
+	@echo "Executing commands inside the 'app' container..."
 	docker compose exec app gosu $(WHOAMI) bash -c "\
+		set -xe; \
 		composer create-project --prefer-dist laravel/laravel . && \
-		php artisan key:generate && \
 		php artisan storage:link && \
 		chmod -R 777 storage bootstrap/cache"
+	@echo "Refreshing the database..."
 	@make fresh
 build:
 	docker compose build
