@@ -6,6 +6,14 @@ docker-compose を使用して、シンプルな LAMP (Laravel、Apache、MySQL�
 
 Windows(WSL2)、macOS(M1)、Linuxに対応。
 
+## 事前準備
+
+事前準備として、以下のドキュメントを読み、必要なソフトウェア等をインストールしてください。
+
+[Docker開発環境の準備 / Windows](https://github.com/june1983/docker-lamp/wiki/Windows)
+
+[Docker開発環境の準備 / Mac](https://github.com/june1983/docker-lamp/wiki/Mac)
+
 ## コンテナ構成
 
 ```text
