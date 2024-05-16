@@ -52,6 +52,9 @@ RUN curl -sL https://deb.nodesource.com/setup_18.x | bash - \
 COPY ./infra/docker/php-apache/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
+ENTRYPOINT [ "/usr/local/bin/entrypoint.sh" ]
+CMD [ "apache2-foreground" ]
+
 # Development stage: Includes Node.js
 FROM base AS development
 
