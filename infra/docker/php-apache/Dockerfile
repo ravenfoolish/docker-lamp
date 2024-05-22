@@ -9,7 +9,6 @@ ENV TZ=UTC \
 
 COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
 
-# Install PHP dependencies and extensions
 RUN apt-get update \
     && apt-get -y install --no-install-recommends \
         git=1:2.39.2-1.1 \
@@ -38,11 +37,11 @@ RUN apt-get update \
 # apache configuration
 COPY ./infra/docker/php-apache/000-default.conf /etc/apache2/sites-enabled/
 
-# Enable Apache modules
+# enable Apache modules
 RUN mv /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled \
     && /bin/sh -c a2enmod rewrite
 
-# Install Node.js
+# install Node.js
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN curl -O -sL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get update \
@@ -58,7 +57,6 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 ENTRYPOINT [ "/usr/local/bin/entrypoint.sh" ]
 CMD [ "apache2-foreground" ]
 
-# Development stage: Includes Node.js
 FROM base AS development
 
 COPY ./infra/docker/php-apache/php.development.ini /usr/local/etc/php/php.ini
@@ -70,7 +68,6 @@ RUN pecl install xdebug && \
 
 COPY ./infra/docker/php-apache/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
-# Deploy stage: Includes Node.js
 FROM base AS deploy
 
 COPY ./infra/docker/php-apache/php.deploy.ini /usr/local/etc/php/php.ini
