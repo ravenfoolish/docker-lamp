@@ -1,23 +1,20 @@
 SHELL=/bin/bash
 
 ## args
-UID = $(shell id -u ${USER})
-GID = $(shell id -g ${USER})
+WWWUSER = $(shell id -u ${USER})
+WWWGROUP = $(shell id -g ${USER})
 WHOAMI = $(shell whoami)
 
 ifeq ($(shell uname), Darwin)
 	# Default group id is '20' on macOS. This group id is already exsit on Linux Container. So set a same value as uid.
-	GID = $(UID)
+	WWWGROUP = $(WWWUSER)
 endif
 
-export UID GID WHOAMI
+export WWWUSER WWWGROUP WHOAMI
 
 install:
-	@echo "Building the Docker images..."
 	@make build
-	@echo "Starting up the Docker containers..."
 	@make up
-	@echo "Executing installation commands inside the 'app' container..."
 	docker compose exec app gosu $(WHOAMI) bash -c "\
 		set -xe; \
 		composer install && \
@@ -28,13 +25,9 @@ install:
 	@echo "Refreshing the database..."
 	@make fresh
 create-project:
-	@echo "Creating directories..."
 	mkdir -p src
-	@echo "Building the Docker images..."
 	@make build
-	@echo "Starting up the Docker containers..."
 	@make up
-	@echo "Executing commands inside the 'app' container..."
 	docker compose exec app gosu $(WHOAMI) bash -c "\
 		set -xe; \
 		composer create-project --prefer-dist laravel/laravel . && \
