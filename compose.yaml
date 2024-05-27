@@ -1,10 +1,3 @@
-volumes:
-  db-store:
-
-configs:
-  db-config:
-    file: ./infra/docker/mysql/my.cnf
-
 services:
   app:
     ports:
@@ -21,8 +14,8 @@ services:
         source: ./src
         target: /var/www/html
     environment:
-      - UID=${UID:-1000}
-      - GID=${GID:-1000}
+      - WWWUSER=${WWWUSER:-1000}
+      - WWWGROUP=${WWWGROUP:-1000}
       - USERNAME=${WHOAMI:-myuser}
       # Please remove this environment variable, after created the Laravel project. Please write in .env
       - LOG_CHANNEL=${LOG_CHANNEL:-daily}
@@ -33,7 +26,6 @@ services:
       - DB_DATABASE=${DB_DATABASE:-laravel}
       - DB_USERNAME=${DB_USERNAME:-root}
       - DB_PASSWORD=${DB_PASSWORD:-password}
-
   db:
     build:
       context: .
@@ -44,11 +36,13 @@ services:
         protocol: tcp
         mode: host
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_PASSWORD"]
-      interval: 10s
-      timeout: 5s
+      test:
+          - CMD
+          - mysqladmin
+          - ping
+          - '-p$$MYSQL_PASSWORD'
       retries: 3
-      start_period: 10s
+      timeout: 5s
     configs:
       - source: db-config
         target: /etc/my.cnf
@@ -63,9 +57,13 @@ services:
       - MYSQL_USER=${DB_USERNAME:-root}
       - MYSQL_PASSWORD=${DB_PASSWORD:-password}
       - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-rootpassword}
-
   adminer:
     image: adminer
     restart: always
     ports:
       - 8888:8080
+volumes:
+  db-store:
+configs:
+  db-config:
+    file: ./infra/docker/mysql/my.cnf
