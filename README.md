@@ -10,33 +10,36 @@ Windows(WSL2)、macOS(M1)、Linuxに対応。
 
 事前準備として、以下のドキュメントを読み、必要なソフトウェア等をインストールしてください。
 
-[Docker開発環境の準備 / Windows](https://github.com/june1983/docker-lamp/wiki/Windows)
+[Docker開発環境の準備 / Windows](https://xacro.backlog.jp/alias/wiki/1419045)
 
-[Docker開発環境の準備 / Mac](https://github.com/june1983/docker-lamp/wiki/Mac)
+[Docker開発環境の準備 / Mac](https://xacro.backlog.jp/alias/wiki/1419141)
 
 ## コンテナ構成
 
 ```text
 ├── app
+├── web
 ├── db
 └── adminer
 ```
 
 ### app コンテナ
 
-- Base image
-  - [php:8.2-apache](https://hub.docker.com/_/php):8.2-apache
-  - [composer](https://hub.docker.com/_/composer):2.7
+- [php:8.3-fpm-bookworm](https://hub.docker.com/_/php):8.3-fpm-bookworm
+- [composer](https://hub.docker.com/_/composer):2.7
+- Node.js:18
+
+### web コンテナ
+
+- [httpd:2.4.61-bookworm](https://hub.docker.com/_/httpd):2.4.61-bookworm
 
 ### db コンテナ
 
-- Base image
-  - [mysql/mysql-server](https://hub.docker.com/r/mysql/mysql-server):8.0
+- [mysql/mysql-server](https://hub.docker.com/r/mysql/mysql-server):8.0
 
 ### adminer コンテナ
 
-- Base image
-  - [adminer](https://hub.docker.com/_/adminer)
+- [adminer](https://hub.docker.com/_/adminer)
 
 ## ディレクトリ構成
 
@@ -48,13 +51,15 @@ Windows(WSL2)、macOS(M1)、Linuxに対応。
 │          ├── mysql
 │          │   ├── Dockerfile
 │          │   └── my.cnf
+│          └── apache
+│          │   ├── Dockerfile
+│          │   ├── httpd.conf
 │          └── php
-│              ├── 000-default.conf
-│              ├── Dockerfile
-│              ├── entrypoint.sh
-│              ├── php.deploy.ini
-│              ├── php.development.ini
-│              └── xdebug.ini
+│               ├── Dockerfile
+│               ├── entrypoint.sh
+│               ├── php.deploy.ini
+│               ├── php.development.ini
+│               └── xdebug.ini
 ├── Makefile
 └── compose.yaml
 ```
@@ -94,11 +99,17 @@ $ docker compose exec app php artisan migrate:fresh
 
 バージョンを指定したい場合の手順です。
 
+プロジェクトフォルダにGitクローンする
+
+```bash
+git clone https://xacro.backlog.jp/git/XACRO/docker-lamp.git .
+```
+
+以下のコマンドを実行
 ※php.8.2と互換性のないバージョンを指定するとエラーが発生する可能性があります。
 <https://readouble.com/laravel/11.x/ja/releases.html>
 
 ```bash
-$ git clone https://xacro.backlog.jp/git/XACRO/docker-lamp.git .
 $ mkdir -p src
 $ docker compose build
 $ make up
@@ -106,7 +117,7 @@ $ docker compose exec app gosu $(whoami) bash -c "\
     composer create-project --prefer-dist 'laravel/laravel=9.*' . && \
     php artisan key:generate && \
     php artisan storage:link && \
-    chmod -R 777 storage bootstrap/cache && \ 
+    chmod -R 777 storage bootstrap/cache && \
     php artisan migrate"
 ```
 
@@ -284,6 +295,3 @@ WSLのファイルをVSCodeで編集できるようにするために、拡張�
 - vagrantの環境を継続して使用したい場合は、Virtual Boxのバージョンをv6.1にアップデートしてください。
 
 - 上記ドキュメントの中で不明点や間違っている点などあれば、遠慮なくご指摘ください。
-
-Docker公式ドキュメント
-[Install Docker Engine on Ubuntu](https://docs.docker.com/engine/install/ubuntu/)
