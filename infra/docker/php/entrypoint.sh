@@ -14,7 +14,7 @@ export HOME=/home/"$USERNAME"
 
 # first arg is `-f` or `--some-option`
 if [ "${1#-}" != "$1" ]; then
-	set -- apache2-foreground "$@"
+	set -- httpd-foreground "$@"
 fi
 
 exec "$@"

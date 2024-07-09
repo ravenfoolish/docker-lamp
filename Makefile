@@ -22,7 +22,6 @@ install:
 		php artisan key:generate && \
 		php artisan storage:link && \
 		chmod -R 777 storage bootstrap/cache"
-	@echo "Refreshing the database..."
 	@make fresh
 create-project:
 	mkdir -p src
